@@ -11,14 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
-    })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        //
-    })
-    ->withMiddleware(function ($middleware) {
         $middleware->alias([
             'perfil' => \App\Http\Middleware\PerfilMiddleware::class,
         ]);
+    })
+    ->withExceptions(function (Exceptions $exceptions): void {
+        //
     })
     ->create();

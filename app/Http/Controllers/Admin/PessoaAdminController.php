@@ -8,13 +8,31 @@ use Illuminate\Http\Request;
 
 class PessoaAdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pessoas = Pessoa::with('cpf')
-            ->orderBy('nome')
-            ->get();
+        $busca = $request->busca;
 
-        return view('admin.pessoas.index', compact('pessoas'));
+        $pessoas = Pessoa::with('cpf')
+            ->when($busca, function ($query) use ($busca) {
+
+                $query->where('nome', 'like', "%{$busca}%")
+                    ->orWhereHas('cpf', function ($cpf) use ($busca) {
+
+                        $cpf->where(
+                            'numero',
+                            'like',
+                            "%{$busca}%"
+                        );
+                    });
+            })
+            ->orderBy('nome')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view(
+            'admin.pessoas.index',
+            compact('pessoas')
+        );
     }
 
     public function create()
@@ -36,14 +54,20 @@ class PessoaAdminController extends Controller
 
         return redirect()
             ->route('admin.pessoas.index')
-            ->with('success', 'Pessoa cadastrada com sucesso.');
+            ->with(
+                'success',
+                'Pessoa cadastrada com sucesso.'
+            );
     }
 
     public function edit($id)
     {
         $pessoa = Pessoa::findOrFail($id);
 
-        return view('admin.pessoas.edit', compact('pessoa'));
+        return view(
+            'admin.pessoas.edit',
+            compact('pessoa')
+        );
     }
 
     public function update(Request $request, $id)
@@ -62,14 +86,21 @@ class PessoaAdminController extends Controller
 
         return redirect()
             ->route('admin.pessoas.index')
-            ->with('success', 'Pessoa atualizada com sucesso.');
+            ->with(
+                'success',
+                'Pessoa atualizada com sucesso.'
+            );
     }
 
     public function delete($id)
     {
-        $pessoa = Pessoa::with('cpf')->findOrFail($id);
+        $pessoa = Pessoa::with('cpf')
+            ->findOrFail($id);
 
-        return view('admin.pessoas.delete', compact('pessoa'));
+        return view(
+            'admin.pessoas.delete',
+            compact('pessoa')
+        );
     }
 
     public function destroy($id)

@@ -10,11 +10,20 @@ use Illuminate\Validation\Rule;
 
 class CpfAdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $busca = $request->busca;
+
         $cpfs = Cpf::with('pessoa')
+            ->when($busca, function ($query) use ($busca) {
+                $query->where('numero', 'like', "%{$busca}%")
+                    ->orWhereHas('pessoa', function ($pessoa) use ($busca) {
+                        $pessoa->where('nome', 'like', "%{$busca}%");
+                    });
+            })
             ->orderBy('numero')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return view('admin.cpfs.index', compact('cpfs'));
     }
@@ -31,8 +40,8 @@ class CpfAdminController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'numero' => 'required|unique:cpfs,numero',
-            'pessoa_id' => 'required|unique:cpfs,pessoa_id'
+            'numero' => 'required|max:14|unique:cpfs,numero',
+            'pessoa_id' => 'required|exists:pessoas,id|unique:cpfs,pessoa_id',
         ]);
 
         Cpf::create([
@@ -47,7 +56,7 @@ class CpfAdminController extends Controller
 
     public function edit($id)
     {
-        $cpf = Cpf::findOrFail($id);
+        $cpf = Cpf::with('pessoa')->findOrFail($id);
 
         return view('admin.cpfs.edit', compact('cpf'));
     }
@@ -59,12 +68,13 @@ class CpfAdminController extends Controller
         $request->validate([
             'numero' => [
                 'required',
-                Rule::unique('cpfs', 'numero')->ignore($cpf->id)
-            ]
+                'max:14',
+                Rule::unique('cpfs', 'numero')->ignore($cpf->id),
+            ],
         ]);
 
         $cpf->update([
-            'numero' => $request->numero
+            'numero' => $request->numero,
         ]);
 
         return redirect()

@@ -3,7 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item active">Dashboard</li>
+<li class="breadcrumb-item active">Dashboard</li>
 @endsection
 
 @section('content')
@@ -19,43 +19,50 @@
 
 {{-- Cards de estatísticas --}}
 <div class="row g-4 mb-4">
-    <div class="col-6 col-xl-3">
+    <div class="col-md-4">
         <div class="stat-card stat-card--blue">
-            <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
-            <div class="stat-value">{{ $totalPessoas ?? 248 }}</div>
-            <div class="stat-label">Pessoas Cadastradas</div>
-            <div class="stat-change text-success">
-                <i class="bi bi-arrow-up-short"></i>+12 este mês
+            <div class="stat-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
+
+            <div class="stat-value">
+                {{ $totalPessoas }}
+            </div>
+
+            <div class="stat-label">
+                Pessoas Cadastradas
             </div>
         </div>
     </div>
-    <div class="col-6 col-xl-3">
+
+    <div class="col-md-4">
         <div class="stat-card stat-card--green">
-            <div class="stat-icon"><i class="bi bi-credit-card-2-front-fill"></i></div>
-            <div class="stat-value">{{ $totalCpfs ?? 1.432 }}</div>
-            <div class="stat-label">CPFs Registrados</div>
-            <div class="stat-change text-success">
-                <i class="bi bi-arrow-up-short"></i>+38 este mês
+            <div class="stat-icon">
+                <i class="bi bi-credit-card-2-front-fill"></i>
+            </div>
+
+            <div class="stat-value">
+                {{ $totalCpfs }}
+            </div>
+
+            <div class="stat-label">
+                CPFs Registrados
             </div>
         </div>
     </div>
-    <div class="col-6 col-xl-3">
+
+    <div class="col-md-4">
         <div class="stat-card stat-card--orange">
-            <div class="stat-icon"><i class="bi bi-search"></i></div>
-            <div class="stat-value">{{ $consultasHoje ?? 57 }}</div>
-            <div class="stat-label">Consultas Hoje</div>
-            <div class="stat-change text-muted">
-                <i class="bi bi-dash"></i>igual a ontem
+            <div class="stat-icon">
+                <i class="bi bi-person-x-fill"></i>
             </div>
-        </div>
-    </div>
-    <div class="col-6 col-xl-3">
-        <div class="stat-card stat-card--red">
-            <div class="stat-icon"><i class="bi bi-person-x-fill"></i></div>
-            <div class="stat-value">{{ $pendentes ?? 3 }}</div>
-            <div class="stat-label">Registros Pendentes</div>
-            <div class="stat-change text-danger">
-                <i class="bi bi-arrow-up-short"></i>+1 hoje
+
+            <div class="stat-value">
+                {{ $pessoasSemCpf }}
+            </div>
+
+            <div class="stat-label">
+                Pessoas sem CPF
             </div>
         </div>
     </div>
@@ -86,44 +93,39 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($recentes ?? [] as $pessoa)
+                            @forelse($recentes as $pessoa)
                             <tr>
-                                <td class="fw-semibold">{{ $pessoa->nome }}</td>
-                                <td class="text-muted font-monospace">{{ $pessoa->cpf }}</td>
-                                <td class="text-muted">{{ $pessoa->created_at->format('d/m/Y') }}</td>
-                                <td><span class="badge bg-success-subtle text-success">Ativo</span></td>
+                                <td class="fw-semibold">
+                                    {{ $pessoa->nome }}
+                                </td>
+
+                                <td class="text-muted font-monospace">
+                                    {{ $pessoa->cpf?->numero ?? 'Não informado' }}
+                                </td>
+
+                                <td class="text-muted">
+                                    {{ $pessoa->created_at->format('d/m/Y') }}
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-success-subtle text-success">
+                                        Ativo
+                                    </span>
+                                </td>
+
                                 <td>
                                     <a href="{{ route('admin.pessoas.edit', $pessoa->id) }}"
-                                       class="btn btn-sm btn-ghost">
+                                        class="btn btn-sm btn-ghost">
                                         <i class="bi bi-pencil"></i>
                                     </a>
                                 </td>
                             </tr>
                             @empty
-                            {{-- Dados de demonstração --}}
-                            @foreach([
-                                ['Carlos Alberto Souza','123.456.789-00','15/06/2025','Ativo'],
-                                ['Maria Fernanda Lima','987.654.321-00','14/06/2025','Ativo'],
-                                ['João Pedro Alves','456.123.789-11','14/06/2025','Pendente'],
-                                ['Ana Clara Mendes','321.654.987-22','13/06/2025','Ativo'],
-                                ['Roberto Santos','654.321.098-33','12/06/2025','Ativo'],
-                            ] as $row)
                             <tr>
-                                <td class="fw-semibold">{{ $row[0] }}</td>
-                                <td class="text-muted font-monospace">{{ $row[1] }}</td>
-                                <td class="text-muted">{{ $row[2] }}</td>
-                                <td>
-                                    <span class="badge {{ $row[3] === 'Ativo' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning' }}">
-                                        {{ $row[3] }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <button class="btn btn-sm btn-ghost">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    Nenhum cadastro encontrado.
                                 </td>
                             </tr>
-                            @endforeach
                             @endforelse
                         </tbody>
                     </table>

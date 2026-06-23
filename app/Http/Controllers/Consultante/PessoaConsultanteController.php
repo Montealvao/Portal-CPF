@@ -10,34 +10,26 @@ class PessoaConsultanteController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Pessoa::with('cpf');
+        $busca = $request->busca;
 
-        if ($request->filled('nome')) {
-            $query->where(
-                'nome',
-                'like',
-                '%' . $request->nome . '%'
-            );
-        }
-
-        $pessoas = $query
+        $pessoas = Pessoa::with('cpf')
+            ->when($busca, function ($query) use ($busca) {
+                $query->where('nome', 'like', "%{$busca}%")
+                    ->orWhereHas('cpf', function ($cpf) use ($busca) {
+                        $cpf->where('numero', 'like', "%{$busca}%");
+                    });
+            })
             ->orderBy('nome')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
-        return view(
-            'consultante.pessoas.index',
-            compact('pessoas')
-        );
+        return view('consultante.pessoas.index', compact('pessoas'));
     }
 
     public function ficha($id)
     {
-        $pessoa = Pessoa::with('cpf')
-            ->findOrFail($id);
+        $pessoa = Pessoa::with('cpf')->findOrFail($id);
 
-        return view(
-            'consultante.pessoas.ficha',
-            compact('pessoa')
-        );
+        return view('consultante.pessoas.ficha', compact('pessoa'));
     }
 }

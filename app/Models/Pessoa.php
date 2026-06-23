@@ -6,9 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Pessoa extends Model
 {
-    protected $fillable = ['nome', 'data_nascimento'];
+    protected $fillable = [
+        'nome',
+        'data_nascimento',
+    ];
 
-    // Uma pessoa tem um CPF
+    protected $casts = [
+        'data_nascimento' => 'date',
+    ];
+
     public function cpf()
     {
         return $this->hasOne(Cpf::class);

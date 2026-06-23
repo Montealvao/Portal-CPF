@@ -13,14 +13,16 @@ class CpfConsultanteController extends Controller
         $resultado = null;
 
         if ($request->filled('cpf')) {
+            $cpfBusca = preg_replace('/\D/', '', $request->cpf);
+
             $resultado = Cpf::with('pessoa')
-                ->where('numero', $request->cpf)
+                ->whereRaw(
+                    "regexp_replace(numero, '\\D', '', 'g') = ?",
+                    [$cpfBusca]
+                )
                 ->first();
         }
 
-        return view(
-            'consultante.cpfs.buscar',
-            compact('resultado')
-        );
+        return view('consultante.cpfs.buscar', compact('resultado'));
     }
 }

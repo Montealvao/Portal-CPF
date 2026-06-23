@@ -13,7 +13,7 @@ use App\Http\Controllers\Consultante\CpfConsultanteController;
 /* ============================================================
    Autenticação
    ============================================================ */
-Route::get('/', fn () => redirect()->route('login'));
+Route::get('/', [AuthController::class, 'showLogin']);
 
 Route::get('/login',  [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
